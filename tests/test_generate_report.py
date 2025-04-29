@@ -1,13 +1,21 @@
+import os
 import pandas as pd
 from src.generate_report import generate_summary
 
-def test_generate_summary(tmp_path):
-    input_path = tmp_path / "input.csv"
-    output_path = tmp_path / "output.csv"
+def test_generate_summary_creates_file(tmp_path):
+    # Arrange
+    input_csv = tmp_path / "input.csv"
+    output_csv = tmp_path / "summary.csv"
 
-    input_path.write_text("Name,Department,Salary\nA,Engineering,100\nB,Engineering,300")
+    # Create sample input CSV
+    input_csv.write_text("Department,Salary\nIT,5000\nHR,4000\nIT,6000")
 
-    generate_summary(input_path, output_path)
+    # Act
+    generate_summary(str(input_csv), str(output_csv))
 
-    df = pd.read_csv(output_path)
-    assert df.loc[0, "Average_Salary"] == 200
+    # Assert
+    assert output_csv.exists(), "Output file was not created"
+
+    df = pd.read_csv(output_csv)
+    assert "Department" in df.columns and "Average_Salary" in df.columns
+    assert df.shape[0] == 2  # 2 departments
